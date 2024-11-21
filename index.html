@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat App</title>
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f4f4f4;
+        }
+        #chat {
+            margin-bottom: 20px;
+        }
+        #messages {
+            list-style-type: none;
+            padding: 0;
+            max-height: 300px;
+            overflow-y: auto;
+            width: 300px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background: #fff;
+        }
+        li {
+            padding: 10px;
+            border-bottom: 1px solid #ddd;
+        }
+        input {
+            padding: 10px;
+            margin-right: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div id="chat">
+        <input id="message" type="text" placeholder="Type a message..." />
+        <button onclick="sendMessage()">Send</button>
+    </div>
+    <ul id="messages"></ul>
+
+    <script>
+        const socket = io("http://localhost:3000");
+
+        // Display previous messages
+        socket.on("previous messages", (messages) => {
+            messages.forEach((msg) => {
+                addMessage(`${msg.username}: ${msg.content}`);
+            });
+        });
+
+        // Listen for incoming messages
+        socket.on("chat message", (msg) => {
+            addMessage(`${msg.username}: ${msg.content}`);
+        });
+
+        // Send message
+        function sendMessage() {
+            const input = document.getElementById("message");
+            if (input.value.trim() !== "") {
+                socket.emit("chat message", input.value);
+                input.value = ""; // Clear input
+            }
+        }
+
+        // Helper function to add a message to the list
+        function addMessage(content) {
+            const li = document.createElement("li");
+            li.textContent = content;
+            document.getElementById("messages").appendChild(li);
+        }
+    </script>
+</body>
+</html>
